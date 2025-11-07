@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title> Presiona siguiente mi Abi preciosa — Para Abi 💜</title>
+<style>
+  :root {
+    --bg1:#0e0d12; --bg2:#171427;
+    --glass:rgba(255,255,255,.06);
+    --ink:#f7f4ff; --muted:#bfb6d8;
+    --hi1:#b388ff; --hi2:#ff86c8;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    color:var(--ink);
+    font-family: 'Segoe UI', sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(900px 600px at 20% 10%, #221c3a 0%, transparent 60%),
+      radial-gradient(900px 700px at 85% 30%, #1a142c 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg1), var(--bg2));
+  }
+
+  .dialog{
+    width:min(520px, 90vw);
+    background:#151224dd;
+    border:1px solid var(--glass);
+    border-radius:16px;
+    box-shadow:0 20px 60px rgba(0,0,0,.45), inset 0 0 1px rgba(255,255,255,.06);
+    backdrop-filter: blur(10px);
+    text-align:center;
+    transform:scale(.95);
+    opacity:0;
+    animation:popIn .5s ease forwards;
+  }
+  @keyframes popIn { to{opacity:1; transform:scale(1);} }
+  @keyframes popOut { to{opacity:0; transform:scale(.95);} }
+
+  .dlg-head {
+    font-weight:800; letter-spacing:.2px;
+    padding:12px;
+    border-bottom:1px solid var(--glass);
+    background:linear-gradient(180deg, rgba(255,255,255,.05), transparent);
+  }
+  .dlg-head strong {
+    background:linear-gradient(90deg,var(--hi1),var(--hi2));
+    -webkit-background-clip:text; color:transparent;
+  }
+
+  .dlg-body {
+    padding:28px 20px;
+    font-size:clamp(18px,2.4vw,26px);
+    line-height:1.6;
+    text-shadow:0 0 20px rgba(179,136,255,.2);
+  }
+
+  .dlg-foot {
+    padding:14px;
+    border-top:1px solid var(--glass);
+  }
+  .ok {
+    padding:8px 20px;
+    font-weight:800;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(180deg,#efe6ff,#cfbaff);
+    color:#0b0615;
+    cursor:pointer;
+    box-shadow:0 10px 24px rgba(179,136,255,.25);
+  }
+
+  .progress {
+    position:fixed;
+    left:0; bottom:0;
+    height:4px; width:100%;
+    background:#2a243a;
+  }
+  .progress span {
+    display:block;
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--hi1),var(--hi2));
+    transition:width .3s ease;
+  }
+
+  .credit {
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    font-weight:800;
+    font-size:14px;
+    color:var(--muted);
+    padding:8px 10px;
+    border-radius:12px;
+    border:1px solid var(--glass);
+    background:rgba(255,255,255,.05);
+    backdrop-filter: blur(6px);
+  }
+</style>
+</head>
+<body>
+  <div class="dialog" id="dialog">
+    <div class="dlg-head">Para <strong>(Mi princesa Abi)</strong></div>
+    <div class="dlg-body" id="msg"></div>
+    <div class="dlg-foot"><button class="ok" id="nextBtn">Siguiente</button></div>
+  </div>
+  <div class="progress"><span id="bar"></span></div>
+  <div class="credit">creado por pablooib para mi linda princesa abi</div>
+
+<script>
+const LINES = [
+  "Y a mí me volvió loco tu forma de ser",
+  "(A mí) me volvió loco tu forma de ser",
+  "Tu egoísmo y tu soledad",
+  "Son estrellas en la noche de la mediocridad",
+  "Me volvió loco tu forma de ser",
+  "A mí me volvió loco tu forma de ser",
+  "Tu egoísmo y tu soledad",
+  "Son joyas en el barro de la mediocridad, eh"
+];
+
+const BASE_PER_CHAR = 55;
+const MIN_DUR = 1800, MAX_DUR = 4800;
+const durList = LINES.map(t =>
+  Math.max(MIN_DUR, Math.min(MAX_DUR, Math.round(t.length * BASE_PER_CHAR)))
+);
+const totalMs = durList.reduce((a,b)=>a+b,0);
+
+const msg = document.getElementById("msg");
+const btn = document.getElementById("nextBtn");
+const bar = document.getElementById("bar");
+
+let idx = 0, elapsed = 0, raf = null, t0 = 0, autoTimer = null, advancing = false;
+
+function setProgress(ms){
+  bar.style.width = Math.min(100, (ms / totalMs) * 100) + '%';
+}
+
+function showLine(i){
+  if(i >= LINES.length){ return finish(); }
+
+  msg.textContent = LINES[i];
+  elapsed = 0; t0 = performance.now();
+  advancing = false;
+
+  cancelAnimationFrame(raf);
+  clearTimeout(autoTimer);
+
+  function loop(now){
+    elapsed = now - t0;
+    const doneBefore = durList.slice(0, i).reduce((a,b)=>a+b, 0);
+    setProgress(doneBefore + Math.min(elapsed, durList[i]));
+    if(elapsed < durList[i]) raf = requestAnimationFrame(loop);
+  }
+  raf = requestAnimationFrame(loop);
+
+  autoTimer = setTimeout(()=> safeNext(), durList[i]);
+}
+
+function safeNext(){
+  if(advancing) return;
+  advancing = true;
+  next();
+}
+
+function next(){
+  clearTimeout(autoTimer);
+  cancelAnimationFrame(raf);
+  idx++;
+  if(idx < LINES.length){
+    showLine(idx);
+  } else {
+    finish();
+  }
+}
+
+function finish(){
+
+  btn.textContent = "Repetir";
+  setProgress(totalMs);
+  btn.onclick = restart;
+}
+
+function restart(){
+  idx = 0; elapsed = 0; advancing = false;
+  btn.textContent = "Siguiente";
+  btn.onclick = safeNext;
+  setProgress(0);
+  showLine(0);
+}
+
+btn.onclick = safeNext;
+restart();
+</script>
+</body>
+</html>
